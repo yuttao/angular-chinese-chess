@@ -1,0 +1,14 @@
+div.board {
+  background-image: url('/assets/chessboard.svg');
+  width: 500px;
+  height: 550px;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+div.boardcontent {
+  width: 450px;
+  height: 500px;
+}
