@@ -12,6 +12,9 @@ export class AppComponent {
   constructor(private ucciService: UcciService) { }
 
   printUcci(){
-    this.ucciService.print()
+    for (let [key, val] of this.ucciService.getPieceMap()) {
+      console.log(key, "->", val)
+    }
+   // this.ucciService.print()
   }
 }

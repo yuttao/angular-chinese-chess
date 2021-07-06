@@ -1,13 +1,17 @@
-div.board {
-  background-image: url('/assets/chessboard.svg');
-  width: 500px;
-  height: 550px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-div.board-content {
-  width: 450px;
-  height: 500px;
-  padding: 25px;
+svg.chess-board {
+  width: 100vw;
+  height: 110vw;
+  /* height:width ratio = 9/16 = .5625  */
+  background: burlywood;
+  max-height: 100vh;
+  max-width: 90.909vh;
+  /* 16/9 = 1.778 */
+  margin: auto;
+  position: absolute;
+  top: auto;
+  bottom: 0;
+  /* vertical center */
+  left: auto;
+  right: 0;
+  /* horizontal center */
 }

@@ -77,7 +77,7 @@ export class UcciService {
 
 
   //validate whether the FEN string is valid or not
-  validate(fen: string): boolean{
+  validate(fen: string): boolean {
     // split the string and make sure that it has seven parts
     let parts: string[] = fen.split(' ')
     if (parts.length !== 6) {
@@ -373,17 +373,19 @@ export class UcciService {
   }
 
 
-  /*
-  getList() {
-    let list = []
+
+  getPieceMap() {
+    let pieceMap = new Map()
     for (let r in this.state) {
       for (let c in this.state[r]) {
-        let s = '' + this.col[c] + this.row[r]
-        list[s] = this.state[r][c]
+        let key: string = '' + this.col[c] + this.row[r]
+        if (this.state[r][c] !== ' ') {
+          pieceMap.set(key, this.state[r][c])
+        }
       }
     }
-    return list
-  }*/
+    return pieceMap
+  }
 
   getMatrix(team: string): string[][] {
     let matrix: string[][] = []

@@ -5,12 +5,14 @@ import { AppComponent } from './app.component';
 import { ChessBoardComponent } from './chess-board/chess-board.component';
 import { ChessPieceComponent } from './chess-piece/chess-piece.component';
 import { UcciService } from './ucci.service';
+import { ChessGridComponent } from './chess-grid/chess-grid.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChessBoardComponent,
-    ChessPieceComponent
+    ChessPieceComponent,
+    ChessGridComponent
   ],
   imports: [
     BrowserModule

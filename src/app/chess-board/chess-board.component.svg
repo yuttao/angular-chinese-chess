@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 550" class="chess-board">
+  <g app-chess-grid />
+  <g transform="translate(25 25)">
+    <g app-chess-piece *ngFor="let key of this.pieces.keys()" [position]='key' [piece]='this.pieces.get(key)'/>
+  </g>
+</svg>
+<!--  *ngFor="let [key, val] of pieceMap" [attr.piece]="val"-->
