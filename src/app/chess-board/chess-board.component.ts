@@ -8,10 +8,10 @@ import { UcciService } from '../ucci.service';
   styleUrls: ['./chess-board.component.css']
 })
 export class ChessBoardComponent implements OnInit {
-  pieces = new Map()
+  pieces: string[][]
 
   constructor(ucci: UcciService) {
-    this.pieces = ucci.getPieceMap()
+    this.pieces = ucci.getList()
   }
 
   ngOnInit(): void {

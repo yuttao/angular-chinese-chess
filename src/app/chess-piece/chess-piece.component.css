@@ -1,12 +1,11 @@
-g.chess-piece {
-  width: 50px;
-  height: auto;
+g.piece-hover {
+  filter: url(#dropshadow)
 }
-
-g.chess-piece:hover {
-  box-shadow: 0 4px 17px rgba(0, 0, 0, 0.35);
+g.piece-hover:hover {
+  transform: translateY(-5px);
 }
 
 g.piece-name {
   fill-opacity: 1;
+  filter: url(#inset-shadow)
 }

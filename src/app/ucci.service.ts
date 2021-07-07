@@ -372,15 +372,13 @@ export class UcciService {
     return "" + this.col[pos[1]] + this.col[pos[0]]
   }
 
-
-
-  getPieceMap() {
-    let pieceMap = new Map()
+  getList() :string[][] {
+    let pieceMap = []
     for (let r in this.state) {
       for (let c in this.state[r]) {
         let key: string = '' + this.col[c] + this.row[r]
         if (this.state[r][c] !== ' ') {
-          pieceMap.set(key, this.state[r][c])
+          pieceMap.push([key, this.state[r][c]])
         }
       }
     }

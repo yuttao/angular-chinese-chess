@@ -1,5 +1,6 @@
-<svg:g transform="translate(25 25)">
-  <rect stroke="black" fill-opacity="0" x="22" y="22" stroke-width="2px" width="406" height="456" />
-  <rect stroke="black" fill-opacity="0" x="25" y="25" stroke-width="1.5px" width="400" height="450" />
-  <path *ngFor="let line of lines" [attr.d]="line" stroke="black" stroke-width="1.2px" />
+<svg:g stroke="black" fill="transparent">
+  <rect x="22" y="22" stroke-width="2px" width="406" height="456" />
+  <rect x="25" y="25" stroke-width="1.5px" width="400" height="450" />
+  <path *ngFor="let line of lines" [attr.d]="line" stroke-width="1.2px" />
+  <path *ngFor="let dash of dashes" [attr.d]="dash" stroke-width="1.4px" />
 </svg:g>

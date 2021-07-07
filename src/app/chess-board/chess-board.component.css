@@ -8,10 +8,10 @@ svg.chess-board {
   /* 16/9 = 1.778 */
   margin: auto;
   position: absolute;
-  top: auto;
-  bottom: 0;
+  top: 0;
+  bottom: auto;
   /* vertical center */
-  left: auto;
+  left: 0;
   right: 0;
   /* horizontal center */
 }
