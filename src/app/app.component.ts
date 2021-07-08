@@ -11,10 +11,4 @@ export class AppComponent {
   title = 'angular-chinese-chess';
   constructor(private ucciService: UcciService) { }
 
-  printUcci(){
-    for (let [key, val] of this.ucciService.getList()) {
-      console.log(key, "->", val)
-    }
-   // this.ucciService.print()
-  }
 }

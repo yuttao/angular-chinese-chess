@@ -1,7 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 510" class="chess-board">
-  <g app-chess-grid transform="translate(5 5)"/>
+  <g app-chess-grid transform="translate(5 5)" />
   <g transform="translate(5 5)">
-    <g app-chess-piece *ngFor="let p of pieces" [position]='p[0]' [piece]='p[1]'/>
+    <g app-chess-piece *ngFor="let p of getOpponent()" [position]='p.position' [piece]='p.piece' />
+    <g app-chess-piece *ngFor="let p of getMovable()" [position]='p.position' [piece]='p.piece'
+      (pieceClickedEvent)="onSelectPiece($event)" />
+    <g app-chess-piece *ngFor="let p of getEmpty()" [position]='p' (pieceClickedEvent)="onMovePiece($event)" />
+    <g app-chess-piece *ngFor="let p of getHighLight()" [position]='p.position' [highlight]="true" [piece]="p.piece"
+      (pieceClickedEvent)="onMovePiece($event)" />
+    <g app-chess-piece *ngIf="start!== undefined" [position]='start.position' [highlight]="true" [piece]='start.piece' (pieceClickedEvent)="onMovePiece($event)" />
   </g>
 </svg>
 <!--  *ngFor="let [key, val] of pieceMap" [attr.piece]="val"-->

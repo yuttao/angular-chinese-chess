@@ -1,4 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output
+} from '@angular/core';
+
 import { UcciService } from '../ucci.service';
 
 @Component({
@@ -7,11 +14,15 @@ import { UcciService } from '../ucci.service';
   styleUrls: ['./chess-piece.component.css']
 })
 export class ChessPieceComponent implements OnInit {
-  @Input() piece: string = 'k';
+  // inputs
+  @Input() piece: string = ' ';
   @Input() position: string = 'a0'
   @Input() highlight: boolean = false
 
-  constructor(ucci: UcciService) {
+  // output event
+  @Output() pieceClickedEvent = new EventEmitter<string>();
+
+  constructor() {
   }
 
   getColor(): string {
@@ -36,7 +47,18 @@ export class ChessPieceComponent implements OnInit {
     var dy = this.position.charCodeAt(1) - '0'.charCodeAt(0)
     return `translate(${dx * 50} ${dy * 50 + 5})`
   }
+
+  getHighlightPath(): string[] {
+    var dx = 7
+    var len = 12
+    return [
+     `M ${dx},${dx+len} l 0,${-len} l ${len},0`,
+     `M ${50 -dx},${dx+len} l 0,${-len} l ${-len},0`,
+     `M ${dx},${50-dx-len} l 0,${len} l ${len},0`,
+     `M ${50 -dx},${50-dx-len} l 0,${len} l ${-len},0`]
+  }
+
   onClick() {
-    this.highlight = !this.highlight
+    this.pieceClickedEvent.emit(this.position)
   }
 }

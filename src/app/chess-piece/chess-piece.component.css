@@ -1,9 +1,9 @@
 g.piece-hover {
   filter: url(#dropshadow)
 }
-g.piece-hover:hover {
+/* g.piece-hover:hover {
   transform: translateY(-5px);
-}
+} */
 
 g.piece-name {
   fill-opacity: 1;

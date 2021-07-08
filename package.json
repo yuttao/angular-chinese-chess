@@ -9,7 +9,7 @@
     "test": "ng test",
     "gh-build" :"ng build --base-href \"https://yuttao.github.io/angular-chinese-chess/\"",
     "gh-publish" :"ngh --dir=dist/angular-chinese-chess",
-    "gh-page":"npm run gh-build; npm run gh-publish"
+    "gh-page":"npm run gh-build && npm run gh-publish"
   },
   "private": true,
   "dependencies": {

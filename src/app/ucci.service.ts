@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ChessPiece } from './ChessPiece';
 
 @Injectable({
   providedIn: 'root'
@@ -117,7 +118,7 @@ export class UcciService {
 
   //make sure that the object created by the init function have access to
   //the functions of library by setting its prototype
-  print() {
+  public print() {
     let board = ''
     for (let r in this.state) {
       let line = ''
@@ -131,13 +132,13 @@ export class UcciService {
     return this
   }
 
-  showState() {
+  public showState() {
     console.log(this.state)
     return this
   }
 
   //move a piece return false if not successful
-  move(str: string): boolean {
+  public move(str: string): boolean {
 
     //make sure that the two positions are different
     let src = str.substring(0, 2)
@@ -372,17 +373,17 @@ export class UcciService {
     return "" + this.col[pos[1]] + this.col[pos[0]]
   }
 
-  getList() :string[][] {
-    let pieceMap = []
+  getPieces(): ChessPiece[] {
+    let pieceList: ChessPiece[] = []
     for (let r in this.state) {
       for (let c in this.state[r]) {
         let key: string = '' + this.col[c] + this.row[r]
         if (this.state[r][c] !== ' ') {
-          pieceMap.push([key, this.state[r][c]])
+          pieceList.push(new ChessPiece(key, this.state[r][c]))
         }
       }
     }
-    return pieceMap
+    return pieceList
   }
 
   getMatrix(team: string): string[][] {
@@ -406,7 +407,7 @@ export class UcciService {
 
   getPossibleMoves(str: string): string[] {
     let p_s = this.strToPos(str)
-    let list = []
+    let list: string[] = []
     for (let r = 0; r < 10; r++) {
       for (let c = 0; c < 9; c++) {
         try {
