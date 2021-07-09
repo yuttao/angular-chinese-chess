@@ -6,6 +6,7 @@ import { ChessBoardComponent } from './chess-board/chess-board.component';
 import { ChessPieceComponent } from './chess-piece/chess-piece.component';
 import { UcciService } from './ucci.service';
 import { ChessGridComponent } from './chess-grid/chess-grid.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { ChessGridComponent } from './chess-grid/chess-grid.component';
     ChessGridComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    BrowserAnimationsModule
   ],
   providers: [
     UcciService
