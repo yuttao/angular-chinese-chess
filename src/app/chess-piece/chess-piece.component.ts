@@ -6,8 +6,6 @@ import {
   Output
 } from '@angular/core';
 
-import { UcciService } from '../ucci.service';
-
 @Component({
   selector: '[app-chess-piece]',
   templateUrl: './chess-piece.component.svg',
