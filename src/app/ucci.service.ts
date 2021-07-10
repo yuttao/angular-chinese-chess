@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { ChessPiece } from './ChessPiece';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +25,7 @@ export class UcciService {
 
   // member variables
   initialState !: string
-  state !: string[][]
+  matrix !: string[][]
   player: string = 'w'
   round: number = 0
   emptyStep: number = 0
@@ -41,9 +40,9 @@ export class UcciService {
     let parts = fen.split(' ')
     this.initialState = fen
     let lines = parts[0].split('/')
-    this.state = []
+    this.matrix = []
     for (let i = 0; i <= 9; i++) {
-      let temp: string[] = this.state[i] = []
+      let temp: string[] = this.matrix[i] = []
       let line = lines[i]
       for (let k = 0; k < line.length; k++) {
         let c = line[k]
@@ -120,10 +119,10 @@ export class UcciService {
   //the functions of library by setting its prototype
   public print() {
     let board = ''
-    for (let r in this.state) {
+    for (let r in this.matrix) {
       let line = ''
-      for (let c in this.state[r]) {
-        line += this.state[r][c]
+      for (let c in this.matrix[r]) {
+        line += this.matrix[r][c]
       }
       line += ' '
       board += line + '\n'
@@ -133,7 +132,7 @@ export class UcciService {
   }
 
   public showState() {
-    console.log(this.state)
+    console.log(this.matrix)
     return this
   }
 
@@ -180,17 +179,90 @@ export class UcciService {
     return true
   }
 
+  filterValidMove(ps: [number, number], pe: [number, number]): boolean {
+    if (!this.isValidMove(ps, pe)) {
+      return false
+    }
+    let t = this.matrix[pe[0]][pe[1]]
+    this.matrix[pe[0]][pe[1]] = this.matrix[ps[0]][ps[1]]
+    this.matrix[ps[0]][ps[1]] = ' '
+    let ret = true
+    if (this.findKingTreat()) {
+      ret = false;
+    }
+    this.matrix[ps[0]][ps[1]] = this.matrix[pe[0]][pe[1]]
+    this.matrix[pe[0]][pe[1]] = t
+    if (ret) {
+      return ret
+    } else {
+      throw "king under threat"
+    }
+  }
+
+  isPositionValid(p: [number, number]): boolean {
+    if (p[0] < 0 || p[0] > 9 || p[1] < 0 || p[0] > 8) {
+      return false;
+    }
+    return this.matrix[p[0]][p[1]] === ' '
+  }
+
+  getTeamPieces(team: string): [number, number][] {
+    let ret: [number, number][] = []
+    for (let i = 0; i <= 9; i++) {
+      for (let j = 0; j <= 8; j++) {
+        let c = this.matrix[i][j]
+        if (c !== ' ' && this.getTeam(c) == team) {
+          ret.push([i, j])
+        }
+      }
+    }
+    return ret
+  }
+
+  findKingTreat(): boolean {
+    let pos: [number, number] = [-1, -1]
+    let row: number[]
+    if (this.player == 'w') {
+      row = [7, 8, 9]
+    } else {
+      row = [0, 1, 2]
+    }
+    for (let i of row) {
+      for (let j of [3, 4, 5]) {
+        let c = this.matrix[i][j]
+        if (c === 'k' || c === 'K') {
+          pos = [i, j]
+          break
+        }
+      }
+    }
+    if (pos[1] === -1) {
+      return false
+    }
+    let team :string = this.player === 'w' ? 'b' : 'w'
+    for (let pe of this.getTeamPieces(team)) {
+      try {
+        this.isValidMove(pe, pos)
+        return true
+      }
+      catch {
+        continue
+      }
+    }
+    return false
+  }
+
   //validate that a move is valid.
-  isValidMove(p_s: number[], p_t: number[]): boolean {
+  isValidMove(ps: [number, number], pe: [number, number]): boolean {
 
     //The represented
-    let c_s = this.getByPos(p_s)
+    let c_s = this.getByPos(ps)
 
     //The chosen piece must exist
     if (c_s === ' ') {
       throw 'no chosen piece'
     }
-    let c_t = this.getByPos(p_t)
+    let c_t = this.getByPos(pe)
 
     //make sure that it does not eat a piece on the same team
     if (this.getTeam(c_s) === this.getTeam(c_t)) {
@@ -199,21 +271,33 @@ export class UcciService {
 
     switch (c_s.toUpperCase()) {
       case 'A':
-        return this.isAdvisorMoveValid(p_s[0], p_s[1], c_s, p_t[0], p_t[1], c_t)
+        return this.isAdvisorMoveValid(ps[0], ps[1], c_s, pe[0], pe[1], c_t)
       case 'B':
-        return this.isBishopMoveValid(p_s[0], p_s[1], c_s, p_t[0], p_t[1], c_t)
+        return this.isBishopMoveValid(ps[0], ps[1], c_s, pe[0], pe[1], c_t)
       case 'C':
-        return this.isCannonMoveValid(p_s[0], p_s[1], c_s, p_t[0], p_t[1], c_t)
+        return this.isCannonMoveValid(ps[0], ps[1], c_s, pe[0], pe[1], c_t)
       case 'K':
-        return this.isKingMoveValid(p_s[0], p_s[1], c_s, p_t[0], p_t[1], c_t)
+        return this.isKingMoveValid(ps[0], ps[1], c_s, pe[0], pe[1], c_t)
       case 'N':
-        return this.isKnightMoveValid(p_s[0], p_s[1], c_s, p_t[0], p_t[1], c_t)
+        return this.isKnightMoveValid(ps[0], ps[1], c_s, pe[0], pe[1], c_t)
       case 'P':
-        return this.isPawnMoveValid(p_s[0], p_s[1], c_s, p_t[0], p_t[1], c_t)
+        return this.isPawnMoveValid(ps[0], ps[1], c_s, pe[0], pe[1], c_t)
       case 'R':
-        return this.isRookMoveValid(p_s[0], p_s[1], c_s, p_t[0], p_t[1], c_t)
+        return this.isRookMoveValid(ps[0], ps[1], c_s, pe[0], pe[1], c_t)
     }
     return true
+  }
+
+  getAllValidMoves(): [number, number][] {
+    let ret: [number, number][] = []
+
+    return ret
+  }
+
+  getValidMoves(p: [number, number]): [number, number][] {
+    let ret: [number, number][] = []
+
+    return ret
   }
 
   isAdvisorMoveValid(ax: number, ay: number, ac: string, bx: number, by: number, bc: string): boolean {
@@ -235,7 +319,7 @@ export class UcciService {
       throw "bishops must move 2 diagonal step at a time"
     }
     //make sure the position is right
-    if (this.state[(ax + bx) / 2][(ay + by) / 2] !== ' ') {
+    if (this.matrix[(ax + bx) / 2][(ay + by) / 2] !== ' ') {
       throw "the bishop is blocked"
     }
     return true
@@ -278,12 +362,12 @@ export class UcciService {
     let offset = 0
     if (Math.abs(ax - bx) === 1 && Math.abs(ay - by) === 2) {
       offset = by > ay ? 1 : -1
-      if (this.state[ax][ay + offset] !== ' ') {
+      if (this.matrix[ax][ay + offset] !== ' ') {
         throw 'knight is blocked'
       }
     } else if (Math.abs(ax - bx) === 2 && Math.abs(ay - by) === 1) {
       offset = bx > ax ? 1 : -1
-      if (this.state[ax + offset][ay] !== ' ') {
+      if (this.matrix[ax + offset][ay] !== ' ') {
         throw 'knight is blocked'
       }
     } else {
@@ -322,7 +406,7 @@ export class UcciService {
       i = ay < by ? ay : by
       j = ay > by ? ay : by
       for (k = i + 1; k < j; k++) {
-        if (this.state[ax][k] !== ' ') {
+        if (this.matrix[ax][k] !== ' ') {
           n++
         }
       }
@@ -331,7 +415,7 @@ export class UcciService {
       i = ax < bx ? ax : bx
       j = ax > bx ? ax : bx
       for (k = i + 1; k < j; k++) {
-        if (this.state[k][ay] !== ' ') {
+        if (this.matrix[k][ay] !== ' ') {
           n++
         }
       }
@@ -340,8 +424,8 @@ export class UcciService {
     return -1
   }
 
-  getByPos(pos: number[]): string {
-    return this.state[pos[0]][pos[1]]
+  getByPos(pos: [number, number]): string {
+    return this.matrix[pos[0]][pos[1]]
   }
 
   getByStr(s: string): string {
@@ -350,36 +434,36 @@ export class UcciService {
   }
 
   setByPos(pos: number[], value: string): UcciService {
-    this.state[pos[0]][pos[1]] = value
+    this.matrix[pos[0]][pos[1]] = value
     return this
   }
 
-  strToPos(string: string): number[] {
+  strToPos(string: string): [number, number] {
     if (string.length !== 2) {
-      return []
+      return [-1, -1]
     }
     let c = string[0]
     let r = string[1]
-    if (this.col.indexOf(c) < 0) {
-      return []
+    if (c < 'a' || c > 'i') {
+      return [-1, -1]
     }
     if (r < '0' || r > '9') {
-      return []
+      return [-1, -1]
     }
-    return [this.row.indexOf(r), this.col.indexOf(c)]
+    return [r.charCodeAt(0) - '0'.charCodeAt(0), c.charCodeAt(0) - 'a'.charCodeAt(0)]
   }
 
-  posToStr(pos: number[]): string {
+  posToStr(pos: [number, number]): string {
     return "" + this.col[pos[1]] + this.col[pos[0]]
   }
 
-  getPieces(): ChessPiece[] {
-    let pieceList: ChessPiece[] = []
-    for (let r in this.state) {
-      for (let c in this.state[r]) {
+  getPieces(): [string, string][] {
+    let pieceList: [string, string][] = []
+    for (let r in this.matrix) {
+      for (let c in this.matrix[r]) {
         let key: string = '' + this.col[c] + this.row[r]
-        if (this.state[r][c] !== ' ') {
-          pieceList.push(new ChessPiece(key, this.state[r][c]))
+        if (this.matrix[r][c] !== ' ') {
+          pieceList.push([key, this.matrix[r][c]])
         }
       }
     }
@@ -399,7 +483,7 @@ export class UcciService {
       let temp: string[] = []
       matrix.push(temp)
       for (let j = ys; j != ye; j += inc) {
-        temp.push(this.state[i][j])
+        temp.push(this.matrix[i][j])
       }
     }
     return matrix
@@ -411,7 +495,7 @@ export class UcciService {
     for (let r = 0; r < 10; r++) {
       for (let c = 0; c < 9; c++) {
         try {
-          this.isValidMove(p_s, [r, c])
+          this.filterValidMove(p_s, [r, c])
           list.push('' + this.col[c] + this.row[r])
         } catch (e) {
           continue
@@ -437,16 +521,16 @@ export class UcciService {
     }
   }
 
-  isCurrentPlayer(play: string): boolean {
-    return this.player === this.getTeam(this.getByStr(play))
+  isCurrentPlayer(position: string): boolean {
+    return this.player === this.getTeam(this.getByStr(position))
   }
 
   isWhitePiece(p: string): boolean {
-    return this.wPiece.indexOf(p) >= 0
+    return p >= 'A' && p <= 'Z'
   }
 
   isBlackPiece(p: string): boolean {
-    return this.bPiece.indexOf(p) >= 0
+    return p >= 'a' && p <= 'z'
   }
 
   save(): Data {
@@ -457,8 +541,11 @@ export class UcciService {
     return data
   }
 
-  revoke(): UcciService {
+  revoke(): undefined | UcciService {
     let history = this.history
+    if (history.length == 0) {
+      return undefined
+    }
     history.splice(history.length - 1, 1)
     return this
   }

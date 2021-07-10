@@ -23,7 +23,7 @@ export class ChessBoardComponent implements OnInit {
   getPieces() {
     this.pieces = new Map()
     for (let p of this.ucciService.getPieces()) {
-      this.pieces.set(p.position, p)
+      this.pieces.set(p[0], new ChessPiece(p[0], p[1]))
     }
   }
 
