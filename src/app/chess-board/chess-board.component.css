@@ -1,11 +1,12 @@
 svg.chess-board {
   width: 100vw;
   height: 110vw;
-  /* height:width ratio = 9/16 = .5625  */
   background: burlywood;
+  /* background: url("/assets/chessboard.svg");
+  background-repeat: no-repeat;
+  background-size: cover; */
   max-height: 100vh;
   max-width: 90.909vh;
-  /* 16/9 = 1.778 */
   margin: auto;
   position: absolute;
   top: 0;

@@ -19,6 +19,16 @@ export enum Player {
   MASK = 0o30 // mask
 }
 
+let North = [-1, 0]
+let South = [1, 0]
+let West = [0, -1]
+let East = [0, 1]
+let NorthEast = [-1, 1]
+let NorthWest = [-1, 1]
+
+function isPositionValid(p: [number, number]): boolean {
+  return p[0] >= 0 && p[0] <= 9 && p[1] >= 0 && p[1] <= 8
+}
 export class Ucci {
   matrix: number[][] = []
   l2n: Map<String, number> = new Map()
@@ -116,8 +126,105 @@ export class Ucci {
     return ret
   }
 
-  // get valid moves for king
-  getKingMoves(p: [number, number]) {
+  getPiece(p: [number, number]) {
+    return this.matrix[p[0]][p[1]]
+  }
 
+  // get valid moves for a King
+  getKingMoves(p: [number, number]): [number, number][] {
+    let ret: [number, number][] = []
+    let x = p[0], y = p[1]
+    let piece = this.matrix[x][y]
+    let team = piece & Player.MASK
+    for (let d of [North, South, East, West]) {
+      let r = x + d[0], c = y + d[1]
+      if (c >= 3 && c <= 5) {
+        if (team === Player.WHITE && r >= 7 || team === Player.BLACK && r <= 2) {
+          if ((this.matrix[r][c] & Player.MASK) != team) {
+            ret.push([r, c])
+          }
+        }
+      }
+    }
+    let d = team == Player.WHITE ? North : South
+    for (let r = x + d[0], c = y + d[1]; isPositionValid([r, c]); r += d[0], c += d[1]) {
+      let code = this.matrix[r][c]
+      if (code != 0) {
+        if ((code & Piece.MASK) == Piece.K) {
+          ret.push([r, c])
+        }
+        break;
+      }
+    }
+    return ret
+  }
+
+  // get valid moves for a Rook
+  getRookMoves(p: [number, number]): [number, number][] {
+    let ret: [number, number][] = []
+    let x = p[0], y = p[1]
+    let piece = this.matrix[x][y]
+    let team = piece & Player.MASK
+    for (let d of [North, South, East, West]) {
+      for (let r = x + d[0], c = y + d[1]; isPositionValid([r, c]); r += d[0], c += d[1]) {
+        if (this.matrix[r][c] == 0) {
+          ret.push([r, c])
+        } else {
+          if ((this.matrix[r][c] & Player.MASK) !== team) {
+            ret.push([r, c])
+          }
+          break
+        }
+      }
+    }
+    return ret
+  }
+
+  // get all the possible moves for a Canon
+  getCanonMoves(p: [number, number]): [number, number][] {
+    let ret: [number, number][] = []
+    let x = p[0], y = p[1]
+    let piece = this.matrix[x][y]
+    let team = piece & Player.MASK
+    for (let d of [North, South, East, West]) {
+      let jumped = false
+      for (let r = x + d[0], c = y + d[1]; isPositionValid([r, c]); r += d[0], c += d[1]) {
+        if (jumped === false) {
+          if (this.matrix[r][c] === 0) {
+            ret.push([r, c])
+          } else {
+            r += d[0]
+            c += d[1]
+            jumped = true
+          }
+        } else if ((this.matrix[r][c] & Player.MASK) !== team) {
+          ret.push([r, c])
+          break
+        }
+      }
+    }
+    return ret
+  }
+
+  // return the possible moves for a Knight
+  getKnightMoves(p: [number, number]): [number, number][] {
+    let can: [number, number][] = []
+    let x = p[0], y = p[1]
+    let piece = this.matrix[x][y]
+    let team = piece & Player.MASK
+    for (let d of [North, West, South, East]) {
+      let r = x + d[0], c = y + d[1];
+      if (isPositionValid([r, c]) && this.matrix[r][c] == 0) {
+        can.push([r + d[0] + d[1], c + d[1] + d[0]])
+        can.push([r + d[0] - d[1], c + d[1] - d[0]])
+      }
+    }
+    let ret: [number, number][] = []
+    for (let c of can) {
+      if (isPositionValid(c) && (this.getPiece(c) & Player.MASK) !== team) {
+        ret.push(c)
+      }
+    }
+    return ret
   }
 }

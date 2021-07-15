@@ -76,17 +76,7 @@ describe("It should read and write FEN string correctly", function () {
   });
 
   it("should get pieces of a team correctly", function () {
-    ucci.matrix =
-      [[20, 21, 19, 18, 17, 18, 19, 21, 20],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 22, 0, 0, 0, 0, 0, 22, 0],
-      [23, 0, 23, 0, 23, 0, 23, 0, 23],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [15, 0, 15, 0, 15, 0, 15, 0, 15],
-      [0, 14, 0, 0, 0, 0, 0, 14, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [12, 13, 11, 10, 9, 10, 11, 13, 12]];
+    ucci.readFEN("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR");
     let whitePieces = ucci.getTeam(Player.WHITE)
     expect(whitePieces).toEqual([[6, 0], [6, 2], [6, 4], [6, 6], [6, 8],
     [7, 1], [7, 7], [9, 0], [9, 1], [9, 2], [9, 3], [9, 4], [9, 5], [9, 6],
@@ -95,5 +85,29 @@ describe("It should read and write FEN string correctly", function () {
     expect(blackPieces).toEqual([[0, 0], [0, 1], [0, 2], [0, 3], [0, 4],
     [0, 5], [0, 6], [0, 7], [0, 8], [2, 1], [2, 7], [3, 0], [3, 2],
     [3, 4], [3, 6], [3, 8]])
+  });
+
+  it("should get king moves correctly", function () {
+    ucci.readFEN("9/4k4/9/9/9/9/9/9/4K4/9");
+    let moves = ucci.getKingMoves([1, 4])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[0, 4], [2, 4], [1, 5], [1, 3], [8, 4]]))
+  });
+
+  it("should get rook moves correctly", function () {
+    ucci.readFEN("9/4k4/9/9/4R4/9/9/9/4K4/9");
+    let moves = ucci.getRookMoves([4, 4])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[5, 4], [6, 4], [7, 4], [3, 4], [2, 4], [1, 4], [4, 5], [4, 6], [4, 7], [4, 8], [4, 3], [4, 2], [4, 1], [4, 0]]))
+  });
+
+  it("should get canon moves correctly", function () {
+    ucci.readFEN("4r4/9/4r4/9/4C3R/9/9/4K4/9/4R4");
+    let moves = ucci.getCanonMoves([4, 4])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[3, 4], [0, 4], [5, 4], [6, 4], [4, 5], [4, 6], [4, 7], [4, 3], [4, 2], [4, 1], [4, 0]]))
+  });
+
+  it("should get knight moves correctly", function () {
+    ucci.readFEN("9/9/9/4N4/4N4/9/3r1R3/9/9/9");
+    let moves = ucci.getKnightMoves([4, 4])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[3, 2], [5, 2], [6, 3], [5, 6], [3, 6]]))
   });
 });
