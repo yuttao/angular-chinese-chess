@@ -274,4 +274,23 @@ export class Ucci {
     }
     return ret
   }
+
+  // get all valid moves for a Pawn
+  getPawnMoves(p:[number,number]):[number, number][] {
+    let ret: [number,number][] = []
+    let team = this.get(p) & Player.MASK
+    let direct = team === Player.WHITE ? [North] : [South]
+    if (team == Player.WHITE && p[0] <= 4 || team == Player.BLACK && p[1] >=5) {
+      direct.push(East)
+      direct.push(West)
+    }
+    for (let d of direct) {
+      let t = add(p, d)
+      if (isPositionValid(t) && (this.get(t) & Player.MASK) != team) {
+        ret.push(t)
+      }
+    }
+    return ret
+  }
 }
+
