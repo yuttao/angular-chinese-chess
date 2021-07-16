@@ -19,15 +19,36 @@ export enum Player {
   MASK = 0o30 // mask
 }
 
-let North = [-1, 0]
-let South = [1, 0]
-let West = [0, -1]
-let East = [0, 1]
-let NorthEast = [-1, 1]
-let NorthWest = [-1, 1]
+let North: [number, number] = [-1, 0]
+let South: [number, number] = [1, 0]
+let West: [number, number] = [0, -1]
+let East: [number, number] = [0, 1]
+let NorthEast: [number, number] = [-1, 1]
+let NorthWest: [number, number] = [-1, -1]
+let SouthEast: [number, number] = [1, 1]
+let SouthWest: [number, number] = [1, -1]
 
+// check if the position is within the chess board
 function isPositionValid(p: [number, number]): boolean {
   return p[0] >= 0 && p[0] <= 9 && p[1] >= 0 && p[1] <= 8
+}
+
+function isInPalace(p: [number, number], t: Player): boolean {
+  if (p[1] < 3 || p[1] > 5) {
+    return false
+  }
+  if (t === Player.BLACK && p[0] >= 0 && p[0] <= 2) {
+    return true
+  }
+  if (t === Player.WHITE && p[0] >= 7 && p[0] <= 9) {
+    return true
+  }
+  return false
+}
+
+// add a position and a step
+function add(p: [number, number], s: [number, number]): [number, number] {
+  return [p[0] + s[0], p[1] + s[1]]
 }
 export class Ucci {
   matrix: number[][] = []
@@ -126,18 +147,18 @@ export class Ucci {
     return ret
   }
 
-  getPiece(p: [number, number]) {
+  // get the piece of a position, need to ensure that the position is valid
+  get(p: [number, number]): number {
     return this.matrix[p[0]][p[1]]
   }
 
   // get valid moves for a King
   getKingMoves(p: [number, number]): [number, number][] {
     let ret: [number, number][] = []
-    let x = p[0], y = p[1]
-    let piece = this.matrix[x][y]
+    let piece = this.get(p)
     let team = piece & Player.MASK
     for (let d of [North, South, East, West]) {
-      let r = x + d[0], c = y + d[1]
+      let r = p[0] + d[0], c = p[1] + d[1]
       if (c >= 3 && c <= 5) {
         if (team === Player.WHITE && r >= 7 || team === Player.BLACK && r <= 2) {
           if ((this.matrix[r][c] & Player.MASK) != team) {
@@ -147,7 +168,7 @@ export class Ucci {
       }
     }
     let d = team == Player.WHITE ? North : South
-    for (let r = x + d[0], c = y + d[1]; isPositionValid([r, c]); r += d[0], c += d[1]) {
+    for (let r = p[0] + d[0], c = p[1] + d[1]; isPositionValid([r, c]); r += d[0], c += d[1]) {
       let code = this.matrix[r][c]
       if (code != 0) {
         if ((code & Piece.MASK) == Piece.K) {
@@ -162,16 +183,14 @@ export class Ucci {
   // get valid moves for a Rook
   getRookMoves(p: [number, number]): [number, number][] {
     let ret: [number, number][] = []
-    let x = p[0], y = p[1]
-    let piece = this.matrix[x][y]
-    let team = piece & Player.MASK
+    let team = this.get(p) & Player.MASK
     for (let d of [North, South, East, West]) {
-      for (let r = x + d[0], c = y + d[1]; isPositionValid([r, c]); r += d[0], c += d[1]) {
-        if (this.matrix[r][c] == 0) {
-          ret.push([r, c])
+      for (let t = add(p, d); isPositionValid(t); t = add(t, d)) {
+        if (this.get(t) == 0) {
+          ret.push(t)
         } else {
-          if ((this.matrix[r][c] & Player.MASK) !== team) {
-            ret.push([r, c])
+          if ((this.get(t) & Player.MASK) !== team) {
+            ret.push(t)
           }
           break
         }
@@ -183,22 +202,19 @@ export class Ucci {
   // get all the possible moves for a Canon
   getCanonMoves(p: [number, number]): [number, number][] {
     let ret: [number, number][] = []
-    let x = p[0], y = p[1]
-    let piece = this.matrix[x][y]
-    let team = piece & Player.MASK
+    let team = this.get(p) & Player.MASK
     for (let d of [North, South, East, West]) {
       let jumped = false
-      for (let r = x + d[0], c = y + d[1]; isPositionValid([r, c]); r += d[0], c += d[1]) {
+      for (let t = add(p, d); isPositionValid(t); t = add(t, d)) {
         if (jumped === false) {
-          if (this.matrix[r][c] === 0) {
-            ret.push([r, c])
+          if (this.get(t) === 0) {
+            ret.push(t)
           } else {
-            r += d[0]
-            c += d[1]
+            t = add(t, d)
             jumped = true
           }
-        } else if ((this.matrix[r][c] & Player.MASK) !== team) {
-          ret.push([r, c])
+        } else if ((this.get(t) & Player.MASK) !== team) {
+          ret.push(t)
           break
         }
       }
@@ -209,20 +225,51 @@ export class Ucci {
   // return the possible moves for a Knight
   getKnightMoves(p: [number, number]): [number, number][] {
     let can: [number, number][] = []
-    let x = p[0], y = p[1]
-    let piece = this.matrix[x][y]
-    let team = piece & Player.MASK
+    let team = this.get(p) & Player.MASK
     for (let d of [North, West, South, East]) {
-      let r = x + d[0], c = y + d[1];
-      if (isPositionValid([r, c]) && this.matrix[r][c] == 0) {
-        can.push([r + d[0] + d[1], c + d[1] + d[0]])
-        can.push([r + d[0] - d[1], c + d[1] - d[0]])
+      let t = add(p, d)
+      if (isPositionValid(t) && this.get(t) == 0) {
+        let t1 = add(t, d)
+        can.push(add(t1, [d[1], d[0]]))
+        can.push(add(t1, [-d[1], -d[0]]))
       }
     }
     let ret: [number, number][] = []
     for (let c of can) {
-      if (isPositionValid(c) && (this.getPiece(c) & Player.MASK) !== team) {
+      if (isPositionValid(c) && (this.get(c) & Player.MASK) !== team) {
         ret.push(c)
+      }
+    }
+    return ret
+  }
+
+  // get all valid moves for an Advisor
+  getAdvisorMoves(p: [number, number]): [number, number][] {
+    let ret: [number, number][] = []
+    let team = this.get(p) & Player.MASK
+    for (let d of [NorthEast, NorthWest, SouthEast, SouthWest]) {
+      let t = add(p, d)
+      if (isInPalace(t, team) && (this.get(t) & Player.MASK) !== team) {
+        ret.push(t)
+      }
+    }
+    return ret
+  }
+
+  // get all valid moves for a Bishop
+  getBishopMoves(p: [number, number]): [number, number][] {
+    let ret: [number, number][] = []
+    let team = this.get(p) & Player.MASK
+    for (let d of [NorthEast, NorthWest, SouthEast, SouthWest]) {
+      let t1 = add(p,d)
+      if (team === Player.BLACK && t1[0] > 4 || team == Player.WHITE && t1[0] < 5) {
+        continue // Bishop cannot cross the river
+      }
+      if (isPositionValid(t1) && this.get(t1) === 0) {
+        let t2 = add(t1, d)
+        if (isPositionValid(t2) && (this.get(t2) & Player.MASK) !== team) {
+          ret.push(t2)
+        }
       }
     }
     return ret

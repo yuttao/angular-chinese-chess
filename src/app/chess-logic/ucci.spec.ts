@@ -110,4 +110,26 @@ describe("It should read and write FEN string correctly", function () {
     let moves = ucci.getKnightMoves([4, 4])
     expect(moves).toEqual(jasmine.arrayWithExactContents([[3, 2], [5, 2], [6, 3], [5, 6], [3, 6]]))
   });
+
+  it("should get advisor moves correctly", function () {
+    ucci.readFEN("9/4a4/3R5/9/9/9/9/9/9/3A1A3");
+    let moves = ucci.getAdvisorMoves([1, 4])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[0, 5], [0, 3], [2, 5], [2, 3]]))
+    moves = ucci.getAdvisorMoves([9, 3])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[8, 4]]))
+    moves = ucci.getAdvisorMoves([9, 5])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[8, 4]]))
+  });
+
+  it("should get bishop moves correctly", function () {
+    ucci.readFEN("2b6/9/4b4/9/2R6/2B6/9/4B4/9/9");
+    let moves = ucci.getBishopMoves([0, 2])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[2, 0]]))
+    moves = ucci.getBishopMoves([2, 4])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[0, 6], [4, 2], [4, 6]]))
+    moves = ucci.getBishopMoves([5, 2])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[7, 0]]))
+    moves = ucci.getBishopMoves([7, 4])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[9, 2], [9, 6], [5, 6]]))
+  });
 });
