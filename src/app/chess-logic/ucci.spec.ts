@@ -1,6 +1,6 @@
 import { Ucci, Player } from "./ucci"
 
-describe("It should read and write FEN string correctly", function () {
+describe("Ucci Class", function () {
   var ucci: Ucci = new Ucci()
 
   it("should create string to number map correctly", function () {
@@ -132,4 +132,43 @@ describe("It should read and write FEN string correctly", function () {
     moves = ucci.getBishopMoves([7, 4])
     expect(moves).toEqual(jasmine.arrayWithExactContents([[9, 2], [9, 6], [5, 6]]))
   });
+
+  it("should get pawn moves correctly", function () {
+    ucci.readFEN("9/9/9/p8/2p5P/3p2P2/4P4/9/9/9");
+    let moves = ucci.getPawnMoves([3, 0])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[4, 0]]))
+    moves = ucci.getPawnMoves([4, 2])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[5, 2]]))
+    moves = ucci.getPawnMoves([5, 3])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[6, 3], [5, 4], [5, 2]]))
+    moves = ucci.getPawnMoves([6, 4])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[5, 4]]))
+    moves = ucci.getPawnMoves([5, 6])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[4, 6]]))
+    moves = ucci.getPawnMoves([4, 8])
+    expect(moves).toEqual(jasmine.arrayWithExactContents([[3, 8], [4, 7]]))
+  });
+
+  function validTest(message: string, moves: [number, number][], valid: [number, number][]) {
+    it(message, function () {
+      expect(moves).toEqual(jasmine.arrayWithExactContents(valid))
+    })
+  }
+
+  ucci.readFEN("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR");
+  for (let i = 0; i <= 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      let moves = ucci.getMoves([i, j])
+      let valid: [number, number][] = []
+      for (let k = 0; k <= 9; k++) {
+        for (let l = 0; l < 9; l++) {
+          if (ucci.isMoveValid([i, j], [k, l])) {
+            valid.push([k, l])
+          }
+        }
+      }
+      let c = ucci.n2l.get(ucci.get([i, j]))
+      validTest("initial state: [" + [i, j] + "]:" + c, moves, valid)
+    }
+  }
 });
